@@ -60,6 +60,10 @@ public class MassDMMod implements ClientModInitializer {
         addTranslation("help_gui_settings", "ᴋᴇʏʙɪɴᴅ ɪs ᴄʜᴀɴɢᴇᴀʙʟᴇ ɪɴ ᴏᴘᴛɪᴏɴs/ᴋᴇʏʙɪɴᴅs sᴇᴛᴛɪɴɢs!", "sᴋʀᴏᴛ ᴍᴏᴢɴᴀ ᴢᴍɪᴇɴɪᴄ ᴡ ᴏᴘᴄᴊᴀᴄʜ sᴛᴇʀᴏᴡᴀɴɪᴀ!", "ᴛᴀsᴛᴇɴʙᴇʟᴇɢᴜɴɢ ᴋᴀɴɴ ɪɴ ᴅᴇɴ ᴇɪɴsᴛᴇʟʟᴜɴɢᴇɴ ɢᴇᴀɴᴅᴇʀᴛ ᴡᴇʀᴅᴇɴ!");
         addTranslation("help_gui_open_settings", "ᴛᴏ ᴏᴘᴇɴ sᴇᴛᴛɪɴɢs", "ᴀʙʏ ᴏᴛᴡᴏʀᴢʏᴄ ᴜsᴛᴀᴡɪᴇɴɪᴀ", "ᴜᴍ ᴇɪɴsᴛᴇʟʟᴜɴɢᴇɴ ᴢᴜ ᴏꜰꜰɴᴇɴ");
         
+        addTranslation("join_loaded", "MassDM loaded successfully.", "MassDM zaladowano pomyslnie.", "MassDM erfolgreich geladen.");
+        addTranslation("join_discord", "Join our discord", "Dolacz na nasz discord", "Tritt unserem Discord bei");
+        addTranslation("join_commands", "Commands", "Komendy", "Befehle");
+        
         addTranslation("screen_ready", "ʀᴇᴀᴅʏ.", "ɢᴏᴛᴏᴡʏ.", "ʙᴇʀᴇɪᴛ.");
         addTranslation("screen_found_online", "ꜰᴏᴜɴᴅ %d ᴘʟᴀʏᴇʀs ᴏɴʟɪɴᴇ", "ᴢɴᴀʟᴇᴢɪᴏɴᴏ %d ɢʀᴀᴄᴢʏ ᴏɴʟɪɴᴇ", "%d sᴘɪᴇʟᴇʀ ᴏɴʟɪɴᴇ ɢᴇꜰᴜɴᴅᴇɴ");
         addTranslation("screen_enter_msg", "ᴇɴᴛᴇʀ ᴍᴇssᴀɢᴇ ᴄᴏɴᴛᴇɴᴛ!", "ᴡᴘɪsᴢ ᴛʀᴇsᴄ ᴡɪᴀᴅᴏᴍᴏsᴄɪ!", "ɴᴀᴄʜʀɪᴄʜᴛᴇɴɪɴʜᴀʟᴛ ᴇɪɴɢᴇʙᴇɴ!");
@@ -88,7 +92,7 @@ public class MassDMMod implements ClientModInitializer {
         addTranslation("screen_view_list", "ʟɪsᴛ", "ʟɪsᴛᴀ", "ʟɪsᴛᴇ");
         addTranslation("screen_remove", "ʀᴇᴍᴏᴠᴇ", "ᴜsᴜɴ", "ᴇɴᴛꜰᴇʀɴᴇɴ");
         addTranslation("screen_back", "◀ ʙᴀᴄᴋ", "◀ ᴘᴏᴡʀᴏᴛ", "◀ ᴢᴜʀᴜᴄᴋ");
-        addTranslation("screen_player_nick", "ᴘʟᴀʏᴇʀ ɴɪᴄᴋ", "ɴɪᴄᴋ ɢʀᴀᴄᴢᴀ", "sᴘɪᴇʟᴇʀ ɴɪᴄᴋ");
+        addTranslation("screen_player_nick", "ᴘʟᴀʏᴇʀ ɴɪᴄᴋ", "ɴɪᴄᴋ ɢʀᴀᴄᴢᴀ", "ꜱᴘɪᴇʟᴇʀ ɴᴀᴍᴇ");
     }
 
     private static void addTranslation(String key, String en, String pl, String de) {
@@ -142,15 +146,15 @@ public class MassDMMod implements ClientModInitializer {
         net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
             if (client.player != null) {
                 client.execute(() -> {
-                    client.player.sendMessage(Text.literal("§8[§dᴍᴀssᴅᴍ§8] §fMassDM §7loaded §asuccessfully."), false);
+                    client.player.sendMessage(Text.literal("§8[§dᴍᴀssᴅᴍ§8] §f" + translate("join_loaded")), false);
                     
-                    net.minecraft.text.MutableText discordMsg = Text.literal("§8- §fJoin our discord: §dcode.pixelmine.pl")
+                    net.minecraft.text.MutableText discordMsg = Text.literal("§8- §f" + translate("join_discord") + ": §dcode.pixelmine.pl")
                         .styled(style -> style.withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://code.pixelmine.pl")));
                     client.player.sendMessage(discordMsg, false);
                     
-                    client.player.sendMessage(Text.literal("§8- §fCommands: §d/massdm help"), false);
+                    client.player.sendMessage(Text.literal("§8- §f" + translate("join_commands") + ": §d/massdm help"), false);
                     String keyName = guiKeyBinding.getBoundKeyLocalizedText().getString();
-                    client.player.sendMessage(Text.literal("§f" + translate("help_gui_keybind") + "§7: §d" + toSmallCaps(keyName)), false);
+                    client.player.sendMessage(Text.literal("§8- §f" + translate("help_gui_keybind") + "§7: §d" + toSmallCaps(keyName)), false);
                     client.player.sendMessage(Text.literal(""), false);
                 });
             }
@@ -294,9 +298,9 @@ public class MassDMMod implements ClientModInitializer {
         if (client.getNetworkHandler() != null) {
             for (net.minecraft.client.network.PlayerListEntry entry : client.getNetworkHandler().getPlayerList()) {
                 String rawName = entry.getProfile().getName();
-                String name = rawName.replaceAll("§.", ""); // Remove color codes from NPCs
+                String name = rawName.replaceAll("§.", "");
                 
-                // Allow only valid username characters (A-Z, a-z, 0-9, _, -, *, .) to support Geyser/Bedrock
+
                 name = name.replaceAll("[^a-zA-Z0-9_\\-\\.*]", "");
                 
                 if (!name.isEmpty() && !excludedPlayers.contains(name.toLowerCase()) && !name.equals(client.getSession().getUsername())) {
