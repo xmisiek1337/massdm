@@ -1,0 +1,16 @@
+{
+  "required": true,
+  "package": "pl.pixelcode.massdm.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": [
+  ],
+  "client": [
+    "GameMenuScreenMixin",
+    "ServerListMixin",
+    "MultiplayerScreenMixin",
+    "ServerEntryMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

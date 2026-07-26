@@ -16,6 +16,9 @@
       "pl.pixelcode.massdm.MassDMMod"
     ]
   },
+  "mixins": [
+    "massdm.mixins.json"
+  ],
   "depends": {
     "fabricloader": ">=0.19.3",
     "fabric": "*",

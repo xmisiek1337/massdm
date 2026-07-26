@@ -1,0 +1,32 @@
+{
+  "mappings": {
+    "pl/pixelcode/massdm/mixin/GameMenuScreenMixin": {
+      "initWidgets": "Lnet/minecraft/class_433;method_20543()V"
+    },
+    "pl/pixelcode/massdm/mixin/MultiplayerScreenMixin": {
+      "updateButtonActivationStates": "Lnet/minecraft/class_500;method_20121()V"
+    },
+    "pl/pixelcode/massdm/mixin/ServerEntryMixin": {
+      "render": "Lnet/minecraft/class_4267$class_4270;method_25343(Lnet/minecraft/class_332;IIIIIIIZF)V"
+    },
+    "pl/pixelcode/massdm/mixin/ServerListMixin": {
+      "loadFile": "Lnet/minecraft/class_641;method_2981()V"
+    }
+  },
+  "data": {
+    "named:intermediary": {
+      "pl/pixelcode/massdm/mixin/GameMenuScreenMixin": {
+        "initWidgets": "Lnet/minecraft/class_433;method_20543()V"
+      },
+      "pl/pixelcode/massdm/mixin/MultiplayerScreenMixin": {
+        "updateButtonActivationStates": "Lnet/minecraft/class_500;method_20121()V"
+      },
+      "pl/pixelcode/massdm/mixin/ServerEntryMixin": {
+        "render": "Lnet/minecraft/class_4267$class_4270;method_25343(Lnet/minecraft/class_332;IIIIIIIZF)V"
+      },
+      "pl/pixelcode/massdm/mixin/ServerListMixin": {
+        "loadFile": "Lnet/minecraft/class_641;method_2981()V"
+      }
+    }
+  }
+}
