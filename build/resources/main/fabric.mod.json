@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "id": "massdm",
+  "version": "1.0-SNAPSHOT",
+  "name": "MassDM",
+  "description": "",
+  "authors": [],
+  "contact": {
+    "repo": "https://github.com/xmisiek1337/MassDM"
+  },
+  "license": "All-Rights-Reserved",
+  "icon": "assets/massdm/icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "pl.pixelcode.massdm.MassDMMod"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.19.3",
+    "fabric": "*",
+    "minecraft": "1.21.4"
+  }
+}
