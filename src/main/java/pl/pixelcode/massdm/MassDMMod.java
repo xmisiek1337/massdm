@@ -147,6 +147,16 @@ public class MassDMMod implements ClientModInitializer {
         net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
             if (client.player != null) {
                 client.execute(() -> {
+                    // Block pixelmine.pl
+                    net.minecraft.client.network.ServerInfo currentServer = client.getCurrentServerEntry();
+                    if (currentServer != null && currentServer.address != null
+                            && currentServer.address.toLowerCase().contains("pixelmine.pl")) {
+                        handler.getConnection().disconnect(
+                            net.minecraft.text.Text.literal("Hej! Na PIXELMINE.PL nie możesz uzywać MassDM heh 🙂")
+                        );
+                        return;
+                    }
+
                     client.player.sendMessage(Text.literal("§8[§dᴍᴀssᴅᴍ§8] §f" + translate("join_loaded")), false);
                     
                     net.minecraft.text.MutableText discordMsg = Text.literal("§8- §f" + translate("join_discord") + ": §dcode.pixelmine.pl")
@@ -160,6 +170,7 @@ public class MassDMMod implements ClientModInitializer {
                 });
             }
         });
+
 
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
             dispatcher.register(literal("massdm")
