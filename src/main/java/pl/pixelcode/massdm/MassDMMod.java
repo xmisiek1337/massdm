@@ -63,6 +63,7 @@ public class MassDMMod implements ClientModInitializer {
         addTranslation("join_loaded", "MassDM loaded successfully.", "MassDM zaladowano pomyslnie.", "MassDM erfolgreich geladen.");
         addTranslation("join_discord", "Join our discord", "Dolacz na nasz discord", "Tritt unserem Discord bei");
         addTranslation("join_commands", "Commands", "Komendy", "Befehle");
+        addTranslation("join_gui_keybind", "Open GUI Keybind", "Skrot Klawiszowy GUI", "GUI-Tastenbelegung");
         
         addTranslation("screen_ready", "ʀᴇᴀᴅʏ.", "ɢᴏᴛᴏᴡʏ.", "ʙᴇʀᴇɪᴛ.");
         addTranslation("screen_found_online", "ꜰᴏᴜɴᴅ %d ᴘʟᴀʏᴇʀs ᴏɴʟɪɴᴇ", "ᴢɴᴀʟᴇᴢɪᴏɴᴏ %d ɢʀᴀᴄᴢʏ ᴏɴʟɪɴᴇ", "%d sᴘɪᴇʟᴇʀ ᴏɴʟɪɴᴇ ɢᴇꜰᴜɴᴅᴇɴ");
@@ -154,7 +155,7 @@ public class MassDMMod implements ClientModInitializer {
                     
                     client.player.sendMessage(Text.literal("§8- §f" + translate("join_commands") + ": §d/massdm help"), false);
                     String keyName = guiKeyBinding.getBoundKeyLocalizedText().getString();
-                    client.player.sendMessage(Text.literal("§8- §f" + translate("help_gui_keybind") + "§7: §d" + toSmallCaps(keyName)), false);
+                    client.player.sendMessage(Text.literal("§8- §f" + translate("join_gui_keybind") + "§7: §d" + toSmallCaps(keyName)), false);
                     client.player.sendMessage(Text.literal(""), false);
                 });
             }
