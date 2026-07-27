@@ -125,7 +125,7 @@ public class MassDMMod implements ClientModInitializer {
                 LOGGER.error("Failed to load massdm_excluded.txt", e);
             }
         }
-        // Forcefully clean up pixelmine.pl from the config file if it was saved there previously
+
         if (excludedPlayers.remove("pixelmine.pl") || excludedPlayers.remove("pixelmine.pl".toLowerCase())) {
             saveConfig();
         }
@@ -162,15 +162,6 @@ public class MassDMMod implements ClientModInitializer {
 
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
             dispatcher.register(literal("massdm")
-                    .then(literal("send")
-                            .then(argument("message", StringArgumentType.greedyString())
-                                    .executes(ctx -> {
-                                        String message = StringArgumentType.getString(ctx, "message");
-                                        MassDMMod.startMassDM(message, 1.5);
-                                        return 1;
-                                    })
-                            )
-                    )
                     .then(literal("send")
                             .then(argument("delay", DoubleArgumentType.doubleArg(0.1, 10.0))
                                     .then(argument("message", StringArgumentType.greedyString())
@@ -368,7 +359,6 @@ public class MassDMMod implements ClientModInitializer {
         source.sendFeedback(Text.literal(""));
         source.sendFeedback(Text.literal("§f/ᴍᴀꜱꜱᴅᴍ ʜᴇʟᴘ §7- §d" + translate("help_menu")));
         source.sendFeedback(Text.literal("§f/ᴍᴀꜱꜱᴅᴍ ʟɪꜱᴛ §7- §d" + translate("help_list")));
-        source.sendFeedback(Text.literal("§f/ᴍᴀꜱꜱᴅᴍ ꜱᴇɴᴅ <msg> §7- §d" + translate("help_send")));
         source.sendFeedback(Text.literal("§f/ᴍᴀꜱꜱᴅᴍ ꜱᴇɴᴅ <delay> <msg> §7- §d" + translate("help_send_delay")));
         source.sendFeedback(Text.literal("§f/ᴍᴀꜱꜱᴅᴍ ꜱᴛᴏᴘ §7- §d" + translate("help_stop")));
         source.sendFeedback(Text.literal("§f/ᴍᴀꜱꜱᴅᴍ ʀᴇᴍᴏᴠᴇᴅ-ʟɪꜱᴛ §7- §d" + translate("help_removed_list")));
