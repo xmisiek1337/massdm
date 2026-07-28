@@ -3,12 +3,14 @@ package pl.pixelcode.massdm;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.message.v1.ClientSendMessageEvents;
+import net.fabricmc.fabric.api.client.message.v1.ClientReceiveMessageEvents;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.PlayerListEntry;
 import net.minecraft.client.gui.screen.option.KeybindsScreen;
 import net.minecraft.text.Text;
 import net.minecraft.text.ClickEvent;
+import net.minecraft.sound.SoundEvents;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,6 +19,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.*;
@@ -36,7 +39,18 @@ public class MassDMMod implements ClientModInitializer {
     public static Language currentLanguage = Language.EN;
     private static KeyBinding guiKeyBinding;
     public static final Set<String> excludedPlayers = new java.util.concurrent.ConcurrentSkipListSet<>(String.CASE_INSENSITIVE_ORDER);
-    
+
+    // HUD tracking state
+    public static int currentSentCount = 0;
+    public static int totalTargetCount = 0;
+    public static String currentTargetPlayer = "";
+    public static double currentDelaySec = 0;
+
+    // Auto-Responder & DM Tracker
+    public static boolean autoResponderEnabled = false;
+    public static String autoResponderMessage = "Jestem AFK, odpisze pozniej!";
+    private static final Map<String, Long> lastAutoReplyMap = new ConcurrentHashMap<>();
+
     private static final Map<String, Map<Language, String>> translations = new HashMap<>();
 
     static {
@@ -75,6 +89,7 @@ public class MassDMMod implements ClientModInitializer {
         addTranslation("screen_message_placeholder", "ᴍᴇssᴀɢᴇ", "ᴡɪᴀᴅᴏᴍᴏsᴄ", "ɴᴀᴄʜʀɪᴄʜᴛ");
         addTranslation("screen_delay", "ᴅᴇʟᴀʏ: %.1f s", "ᴏᴘᴏᴢɴɪᴇɴɪᴇ: %.1f s", "ᴅᴇʟᴀʏ: %.1f s");
         addTranslation("screen_start", "▶ sᴛᴀʀᴛ", "▶ sᴛᴀʀᴛ", "▶ sᴛᴀʀᴛ");
+        addTranslation("screen_start_repeat", "▶ ʀᴇᴘᴇᴀᴛ ʟᴀsᴛ", "▶ ᴘᴏᴡᴛᴏʀᴢ ᴏsᴛᴀᴛɴɪᴇ", "▶ ᴡɪᴇᴅᴇʀʜᴏʟᴇɴ");
         addTranslation("screen_close", "✕ ᴄʟᴏsᴇ", "✕ ᴢᴀᴍᴋɴɪᴊ", "✕ sᴄʜʟɪᴇssᴇɴ");
         addTranslation("screen_stop", "■ sᴛᴏᴘ", "■ sᴛᴏᴘ", "■ sᴛᴏᴘ");
         addTranslation("screen_message_content", "ᴍᴇssᴀɢᴇ ᴄᴏɴᴛᴇɴᴛ:", "ᴛʀᴇsᴄ ᴡɪᴀᴅᴏᴍᴏsᴄɪ:", "ɴᴀᴄʜʀɪᴄʜᴛᴇɴɪɴʜᴀʟᴛ:");
@@ -91,9 +106,38 @@ public class MassDMMod implements ClientModInitializer {
 
         addTranslation("screen_exclude", "ᴇxᴄʟᴜᴅᴇ", "ᴡʏᴋʟᴜᴄᴢ", "ᴀᴜssᴄʜʟɪᴇssᴇɴ");
         addTranslation("screen_view_list", "ʟɪsᴛ", "ʟɪsᴛᴀ", "ʟɪsᴛᴇ");
+        addTranslation("screen_online_players", "ᴘʟᴀʏᴇʀs ʟɪsᴛ", "ʟɪsᴛᴀ ɢʀᴀᴄᴢʏ", "sᴘɪᴇʟᴇʀʟɪsᴛᴇ");
         addTranslation("screen_remove", "ʀᴇᴍᴏᴠᴇ", "ᴜsᴜɴ", "ᴇɴᴛꜰᴇʀɴᴇɴ");
         addTranslation("screen_back", "◀ ʙᴀᴄᴋ", "◀ ᴘᴏᴡʀᴏᴛ", "◀ ᴢᴜʀᴜᴄᴋ");
         addTranslation("screen_player_nick", "ᴘʟᴀʏᴇʀ ɴɪᴄᴋ", "ɴɪᴄᴋ ɢʀᴀᴄᴢᴀ", "ꜱᴘɪᴇʟᴇʀ ɴᴀᴍᴇ");
+
+        addTranslation("placeholder_player", "Target player's nick", "Nick gracza docelowego", "Zielspieler-Name");
+        addTranslation("placeholder_me", "Your nick", "Twój nick", "Dein Name");
+        addTranslation("placeholder_online", "Online players count", "Ilość graczy online", "Anzahl der Spieler online");
+        addTranslation("placeholder_server", "Current server IP", "Aktualny serwer (IP)", "Aktuelle Server-IP");
+        addTranslation("placeholder_time", "Current time (e.g. 15:30)", "Aktualna godzina (np. 15:30)", "Aktuelle Zeit (z.B. 15:30)");
+        addTranslation("placeholder_date", "Current date (e.g. 28.07.2026)", "Aktualna data (np. 28.07.2026)", "Aktuelles Datum (z.B. 28.07.2026)");
+        addTranslation("placeholder_ping", "Your ping (ms)", "Twój ping (ms)", "Dein Ping (ms)");
+        addTranslation("placeholder_uuid", "Target player's UUID", "UUID gracza docelowego", "UUID des Zielspielers");
+        addTranslation("placeholder_random", "Random string of length X", "Losowy ciąg znaków o dług. X", "Zufälliger String (Länge X)");
+
+        addTranslation("changelog_1", "§a+ New, fully redesigned GUI layout", "§a+ Nowy, całkowicie przeprojektowany interfejs", "§a+ Neues, komplett überarbeitetes GUI-Design");
+        addTranslation("changelog_2", "§a+ Better HUD in bottom right corner", "§a+ Lepszy interfejs HUD w prawym dolnym rogu", "§a+ Besseres HUD unten rechts");
+        addTranslation("changelog_3", "§a+ Added custom chat message formats", "§a+ Dodano niestandardowy format wiadomości", "§a+ Benutzerdefiniertes Nachrichtenformat hinzugefügt");
+        addTranslation("changelog_4", "§a+ Removed empty gaps between players", "§a+ Usunięto puste luki między graczami na liście", "§a+ Leere Lücken zwischen Spielern entfernt");
+        addTranslation("changelog_5", "§a+ Quick actions: Refresh, Copy, Repeat", "§a+ Szybkie akcje: Odśwież, Kopiuj, Powtórz", "§a+ Schnellaktionen: Aktualisieren, Kopieren, Wiederholen");
+        addTranslation("changelog_6", "§a+ Search bar in player lists", "§a+ Wyszukiwarka na listach graczy", "§a+ Suchleiste in Spielerlisten");
+        addTranslation("changelog_7", "§a+ Server-specific settings profiles", "§a+ Profile ustawień przypisane do serwera", "§a+ Serverspezifische Einstellungsprofile");
+        addTranslation("changelog_8", "§c- Removed Auto-Responder for performance", "§c- Usunięto Auto-Respondera (optymalizacja)", "§c- Auto-Responder entfernt (Leistung)");
+        addTranslation("changelog_thx", "§7Thank you for using MassDM!", "§7Dziękujemy za korzystanie z MassDM!", "§7Danke, dass du MassDM benutzt!");
+        addTranslation("screen_auto_responder", "🤖 ᴀᴜᴛᴏ-ʀᴇsᴘ: %s", "🤖 ᴀᴜᴛᴏ-ʀᴇsᴘ: %s", "🤖 ᴀᴜᴛᴏ-ʀᴇsᴘ: %s");
+        addTranslation("dm_received", "ᴅᴍ ꜰʀᴏᴍ %s!", "ᴡɪᴀᴅᴏᴍᴏsᴄ ᴏᴅ %s!", "ɴᴀᴄʜʀɪᴄʜᴛ ᴠᴏɴ %s!");
+        addTranslation("screen_search", "🔍 sᴇᴀʀᴄʜ...", "🔍 sᴢᴜᴋᴀᴊ...", "🔍 sᴜᴄʜᴇɴ...");
+        addTranslation("screen_placeholders", "ᴠᴀʀs: {player}, {online}, {server}, {random:4}", "ᴢᴍɪᴇɴɴᴇ: {player}, {online}, {server}, {random:4}", "ᴠᴀʀs: {player}, {online}, {server}, {random:4}");
+        addTranslation("screen_placeholders_btn", "ᴘʟᴀᴄᴇʜᴏʟᴅᴇʀs", "ᴢᴍɪᴇɴɴᴇ", "ᴘʟᴀᴄᴇʜᴏʟᴅᴇʀs");
+        addTranslation("screen_refresh", "ʀᴇꜰʀᴇsʜ", "ᴏᴅsᴡɪᴇᴢ", "ᴀᴋᴛᴜᴀʟɪsɪᴇʀᴇɴ");
+        addTranslation("screen_copy_list", "ᴄᴏᴘʏ ʟɪsᴛ", "ᴋᴏᴘɪᴜᴊ ʟɪsᴛᴇ", "ʟɪsᴛᴇ ᴋᴏᴘɪᴇʀᴇɴ");
+        addTranslation("screen_copied", "✔ ʟɪsᴛ ᴄᴏᴘɪᴇᴅ!", "✔ sᴋᴏᴘɪᴏᴡᴀɴᴏ!", "✔ ᴋᴏᴘɪᴇʀᴛ!");
     }
 
     private static void addTranslation(String key, String en, String pl, String de) {
@@ -116,14 +160,31 @@ public class MassDMMod implements ClientModInitializer {
         return !currentTasks.isEmpty();
     }
 
-    public static final java.io.File configFile = net.fabricmc.loader.api.FabricLoader.getInstance().getConfigDir().resolve("massdm_excluded.txt").toFile();
+    public static String getCurrentServerKey() {
+        MinecraftClient client = MinecraftClient.getInstance();
+        if (client.getCurrentServerEntry() != null && client.getCurrentServerEntry().address != null) {
+            String addr = client.getCurrentServerEntry().address.toLowerCase().trim();
+            return addr.replaceAll("[^a-z0-9._-]", "_");
+        }
+        return "global";
+    }
+
+    public static java.io.File getConfigFile() {
+        String serverKey = getCurrentServerKey();
+        return net.fabricmc.loader.api.FabricLoader.getInstance().getConfigDir().resolve("massdm_excluded_" + serverKey + ".txt").toFile();
+    }
 
     public static void loadConfig() {
-        if (configFile.exists()) {
+        excludedPlayers.clear();
+        java.io.File file = getConfigFile();
+        if (!file.exists()) {
+            file = net.fabricmc.loader.api.FabricLoader.getInstance().getConfigDir().resolve("massdm_excluded.txt").toFile();
+        }
+        if (file.exists()) {
             try {
-                excludedPlayers.addAll(java.nio.file.Files.readAllLines(configFile.toPath()));
+                excludedPlayers.addAll(java.nio.file.Files.readAllLines(file.toPath()));
             } catch (Exception e) {
-                LOGGER.error("Failed to load massdm_excluded.txt", e);
+                LOGGER.error("Failed to load massdm config", e);
             }
         }
 
@@ -134,16 +195,85 @@ public class MassDMMod implements ClientModInitializer {
 
     public static void saveConfig() {
         try {
-            java.nio.file.Files.write(configFile.toPath(), excludedPlayers);
+            java.io.File file = getConfigFile();
+            java.nio.file.Files.write(file.toPath(), excludedPlayers);
         } catch (Exception e) {
-            LOGGER.error("Failed to save massdm_excluded.txt", e);
+            LOGGER.error("Failed to save massdm config", e);
         }
+    }
+
+    public static String formatMessage(String template, String targetPlayer, int onlineCount) {
+        if (template == null) return "";
+        String result = template;
+        MinecraftClient client = MinecraftClient.getInstance();
+
+        result = result.replace("{player}", targetPlayer);
+        result = result.replace("{target}", targetPlayer);
+        result = result.replace("{online}", String.valueOf(onlineCount));
+        
+        if (client.player != null) {
+            result = result.replace("{me}", client.player.getGameProfile().getName());
+            result = result.replace("{ping}", client.getNetworkHandler() != null && client.getNetworkHandler().getPlayerListEntry(client.player.getUuid()) != null ? 
+                    String.valueOf(client.getNetworkHandler().getPlayerListEntry(client.player.getUuid()).getLatency()) : "0");
+        } else {
+            result = result.replace("{me}", "Player");
+            result = result.replace("{ping}", "0");
+        }
+        
+        java.time.LocalDateTime now = java.time.LocalDateTime.now();
+        result = result.replace("{time}", String.format("%02d:%02d", now.getHour(), now.getMinute()));
+        result = result.replace("{date}", String.format("%02d.%02d.%d", now.getDayOfMonth(), now.getMonthValue(), now.getYear()));
+
+        String serverName = "Singleplayer";
+        if (client.getCurrentServerEntry() != null && client.getCurrentServerEntry().address != null) {
+            serverName = client.getCurrentServerEntry().address;
+        }
+        result = result.replace("{server}", serverName);
+        
+        try {
+            if (client.getNetworkHandler() != null && client.getNetworkHandler().getPlayerListEntry(targetPlayer) != null) {
+                result = result.replace("{uuid}", client.getNetworkHandler().getPlayerListEntry(targetPlayer).getProfile().getId().toString());
+            } else {
+                result = result.replace("{uuid}", java.util.UUID.nameUUIDFromBytes(targetPlayer.getBytes()).toString());
+            }
+        } catch (Exception e) {
+            result = result.replace("{uuid}", "unknown");
+        }
+
+        java.util.regex.Pattern pattern = java.util.regex.Pattern.compile("\\{random:(\\d+)\\}");
+        java.util.regex.Matcher matcher = pattern.matcher(result);
+        StringBuffer sb = new StringBuffer();
+        while (matcher.find()) {
+            try {
+                int length = Integer.parseInt(matcher.group(1));
+                length = Math.min(Math.max(1, length), 32);
+                matcher.appendReplacement(sb, generateRandomAlphaNumeric(length));
+            } catch (Exception ignored) {
+            }
+        }
+        matcher.appendTail(sb);
+        return sb.toString();
+    }
+
+    private static String generateRandomAlphaNumeric(int length) {
+        String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        StringBuilder sb = new StringBuilder();
+        java.util.Random rnd = new java.util.Random();
+        for (int i = 0; i < length; i++) {
+            sb.append(chars.charAt(rnd.nextInt(chars.length())));
+        }
+        return sb.toString();
     }
 
     @Override
     public void onInitializeClient() {
-        loadConfig();
-        
+        MassDMHud.register();
+
+        ClientReceiveMessageEvents.GAME.register((message, overlay) -> {
+            if (overlay) return;
+            handleIncomingMessage(message.getString());
+        });
+
         net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
             if (client.player != null) {
                 client.execute(() -> {
@@ -152,10 +282,12 @@ public class MassDMMod implements ClientModInitializer {
                     if (currentServer != null && currentServer.address != null
                             && currentServer.address.toLowerCase().contains("pixelmine.pl")) {
                         handler.getConnection().disconnect(
-                            net.minecraft.text.Text.literal("Hej! Na PIXELMINE.PL nie możesz uzywać MassDM heh 🙂")
+                            net.minecraft.text.Text.literal("§4Hej! Na §fPIXELMINE.PL§4 nie możesz uzywać §cMassDM")
                         );
                         return;
                     }
+
+                    loadConfig();
 
                     client.player.sendMessage(Text.literal("§8[§dᴍᴀssᴅᴍ§8] §f" + translate("join_loaded")), false);
                     
@@ -170,7 +302,6 @@ public class MassDMMod implements ClientModInitializer {
                 });
             }
         });
-
 
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
             dispatcher.register(literal("massdm")
@@ -260,6 +391,40 @@ public class MassDMMod implements ClientModInitializer {
         LOGGER.info("[MassDM] Mod loaded! Use /massdm help or keybind (default J)");
     }
 
+    private static void handleIncomingMessage(String text) {
+        if (text == null || text.isEmpty()) return;
+        MinecraftClient client = MinecraftClient.getInstance();
+        if (client.player == null) return;
+        String myName = client.getSession().getUsername();
+
+        java.util.regex.Pattern dmPattern = java.util.regex.Pattern.compile("(?i)(?:\\[?([a-zA-Z0-9_]{3,16})\\s*(?:->|whispers to|szepta do|od|from)\\s*(?:ja|me|ty|you|mnie)\\]?:?)\\s*(.*)");
+        java.util.regex.Matcher matcher = dmPattern.matcher(text.replaceAll("§.", ""));
+
+        if (matcher.find()) {
+            String sender = matcher.group(1);
+            if (!sender.equalsIgnoreCase(myName)) {
+                client.execute(() -> {
+                    if (client.player != null) {
+                        client.player.playSound(SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0f, 1.0f);
+                        client.player.sendMessage(Text.literal("§d[ᴍᴀssᴅᴍ] §f" + translate("dm_received", sender)), false);
+
+                        if (autoResponderEnabled) {
+                            long now = System.currentTimeMillis();
+                            Long lastReply = lastAutoReplyMap.get(sender.toLowerCase());
+                            if (lastReply == null || (now - lastReply) > 30000) {
+                                lastAutoReplyMap.put(sender.toLowerCase(), now);
+                                String replyCmd = "msg " + sender + " " + autoResponderMessage;
+                                if (client.player.networkHandler != null) {
+                                    client.player.networkHandler.sendChatCommand(replyCmd);
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+    }
+
     private void listPlayers(FabricClientCommandSource source) {
         MinecraftClient client = MinecraftClient.getInstance();
         if (client.player == null || client.getNetworkHandler() == null) {
@@ -302,8 +467,6 @@ public class MassDMMod implements ClientModInitializer {
             for (net.minecraft.client.network.PlayerListEntry entry : client.getNetworkHandler().getPlayerList()) {
                 String rawName = entry.getProfile().getName();
                 String name = rawName.replaceAll("§.", "");
-                
-
                 name = name.replaceAll("[^a-zA-Z0-9_\\-\\.*]", "");
                 
                 if (!name.isEmpty() && !excludedPlayers.contains(name.toLowerCase()) && !name.equals(client.getSession().getUsername())) {
@@ -318,6 +481,11 @@ public class MassDMMod implements ClientModInitializer {
         }
 
         long delay = (long) (delayMs * 1000);
+        currentSentCount = 0;
+        totalTargetCount = players.size();
+        currentTargetPlayer = players.isEmpty() ? "" : players.get(0);
+        currentDelaySec = delayMs;
+
         client.player.sendMessage(Text.literal(
                 String.format("§d[ᴍᴀssᴅᴍ] §f" + translate("msg_sending", players.size(), delayMs))), false);
 
@@ -339,7 +507,11 @@ public class MassDMMod implements ClientModInitializer {
             }
 
             String target = players.get(index[0]++);
-            String safeMsg = message.replaceAll("[^\\x20-\\x7E\\xA1-\\xFF\\u0100-\\u017F]", "").replaceAll("§", "");
+            currentSentCount = index[0];
+            currentTargetPlayer = target;
+
+            String formattedMsg = formatMessage(message, target, players.size());
+            String safeMsg = formattedMsg.replaceAll("[^\\x20-\\x7E\\xA1-\\xFF\\u0100-\\u017F]", "").replaceAll("§", "");
             String bypass = " " + java.util.UUID.randomUUID().toString().substring(0, 4);
             String cmd = "/msg " + target + " " + safeMsg + bypass;
             client.execute(() -> {
@@ -350,7 +522,7 @@ public class MassDMMod implements ClientModInitializer {
                 }
             });
 
-            LOGGER.info("[MassDM] → {}: {}", target, message);
+            LOGGER.info("[MassDM] → {}: {}", target, formattedMsg);
         }, 0, delay, TimeUnit.MILLISECONDS);
         currentTasks.add(taskRef[0]);
     }
@@ -360,6 +532,9 @@ public class MassDMMod implements ClientModInitializer {
             task.cancel(true);
         }
         currentTasks.clear();
+        currentSentCount = 0;
+        totalTargetCount = 0;
+        currentTargetPlayer = "";
         MinecraftClient client = MinecraftClient.getInstance();
         if (client.player != null) {
             client.player.sendMessage(Text.literal("§d[ᴍᴀssᴅᴍ] §f" + translate("msg_stopped")), false);
