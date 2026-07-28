@@ -77,7 +77,6 @@
 #### 🛠️ Version 1.2 (Next Update)
 * 📊 **Post-Campaign Summary Window:** Detailed pop-up menu after broadcast completion showing total successful DMs, duration, and skipped/excluded players.
 * ⏱️ **Background Scheduler (Drip-Feed Mode):** Run broadcasts silently in the background while playing (e.g., automatically message 1 random player every X minutes).
-* 🎯 **Smart Placeholders:** Customize your messages dynamically using `{player}`, `{ping}`, `{online_count}`, `{server_ip}`, and time tags.
 
 ---
 
