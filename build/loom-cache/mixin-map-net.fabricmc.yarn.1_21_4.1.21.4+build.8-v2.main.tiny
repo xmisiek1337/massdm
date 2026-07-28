@@ -1,6 +1,6 @@
 v1	named	intermediary
-FIELD	pl/pixelcode/massdm/mixin/MultiplayerScreenMixin	Lnet/minecraft/client/gui/screen/multiplayer/MultiplayerServerListWidget;	serverListWidget	field_3043
-FIELD	pl/pixelcode/massdm/mixin/MultiplayerScreenMixin	Lnet/minecraft/client/gui/widget/ButtonWidget;	buttonEdit	field_3041
-FIELD	pl/pixelcode/massdm/mixin/MultiplayerScreenMixin	Lnet/minecraft/client/gui/widget/ButtonWidget;	buttonDelete	field_3047
-FIELD	pl/pixelcode/massdm/mixin/ServerListMixin	Ljava/util/List;	servers	field_3749
-METHOD	pl/pixelcode/massdm/mixin/ServerEntryMixin	()Lnet/minecraft/client/network/ServerInfo;	getServer	method_20133
+FIELD	pl/mzcode/massdm/mixin/MultiplayerScreenMixin	Lnet/minecraft/client/gui/screen/multiplayer/MultiplayerServerListWidget;	serverListWidget	field_3043
+FIELD	pl/mzcode/massdm/mixin/MultiplayerScreenMixin	Lnet/minecraft/client/gui/widget/ButtonWidget;	buttonEdit	field_3041
+FIELD	pl/mzcode/massdm/mixin/MultiplayerScreenMixin	Lnet/minecraft/client/gui/widget/ButtonWidget;	buttonDelete	field_3047
+FIELD	pl/mzcode/massdm/mixin/ServerListMixin	Ljava/util/List;	servers	field_3749
+METHOD	pl/mzcode/massdm/mixin/ServerEntryMixin	()Lnet/minecraft/client/network/ServerInfo;	getServer	method_20133

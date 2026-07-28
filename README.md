@@ -28,6 +28,9 @@
 * **Custom Delay Support:** Set custom delays between messages to prevent spam flags and control broadcast speed.
 * **Instant Process Control:** Cancel ongoing message broadcasts at any time with a single command or GUI click.
 * **In-Game Graphical User Interface:** Convenient GUI accessible directly via a hotkey or pause menu.
+* **Interactive Exclusion List:** Easily manage excluded players directly in the GUI with an online player list and one-click "Exclude" buttons.
+* **Favorite Message Presets:** Save and quickly load your most frequently used direct messages using the ⭐ button.
+* **Audio Notifications:** Sound alerts when a message broadcast starts and finishes.
 * **Multilingual Support:** Fully translated into **English**, **Polish**, and **German** (auto-detects your game language!).
 
 ---
@@ -74,9 +77,6 @@
 
 ### 🔮 Upcoming Features (v2.0)
 
-* 👥 **Interactive Exclusion List:** Easily manage excluded players directly in the GUI with an online player list and one-click "Exclude" buttons.
-* 💾 **Favorite Message Presets:** Save and quickly load your most frequently used direct messages.
-* 🔔 **Audio Notifications:** Sound alerts when a message broadcast starts and finishes.
 * ⚡ **Performance & Multi-Version Support:** Further optimizations and support for additional Minecraft versions (both older and newer releases).
 
 ---
@@ -84,4 +84,4 @@
 ### 🐛 Support & Bug Reports
 
 Found a bug, have a suggestion, or need help? Join our community!  
-💬 **Discord Support:** [https://code.pixelmine.pl](https://code.pixelmine.pl)
+💬 **Discord Support:** [https://code.mzcode.pl](https://code.mzcode.pl)
