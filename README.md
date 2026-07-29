@@ -6,7 +6,7 @@
 
 ### Overview
 
-**MassDM** is the ultimate direct messaging tool for Minecraft 1.21.4. It is a lightweight, feature-packed utility mod designed to automate communication and make server-wide interaction effortless.
+**MassDM** is the ultimate direct messaging tool for **Minecraft 1.21.4**. Weighing in at just 485 KB, this ultra-lightweight mod is packed with powerful features to automate communication and make server-wide interaction effortless!
 
 ---
 
@@ -17,6 +17,7 @@
 | **Game Version** | Minecraft 1.21.4 |
 | **Mod Loader** | Fabric |
 | **Environment** | Client-side only (Works on any server!) |
+| **File Size** | Ultra-lightweight (Only 485 KB!) |
 | **Supported Languages** | 🇬🇧 English, 🇵🇱 Polish, 🇩🇪 German |
 
 ---
