@@ -71,15 +71,12 @@
 | `/massdm help` | Displays the help menu and available commands. |
 | `/massdm list` | Displays the current list of online players on the server. |
 | `/massdm send <delay> <msg>` | Sends a direct message to all online players with a specified delay (in seconds). |
-| `/massdm stop` | Instantly stops the active message sending process. |
+| `/massdm stop` | Instantly stops the active message sending process.
 
 ---
 
 ### 🚀 Upcoming Updates
 
-<<<<<<< HEAD
-* ⚡ **Performance & Multi-Version Support:** Further optimizations and support for additional Minecraft versions (both older and newer releases).
-=======
 #### 🛠️ Version 1.2 (Next Update)
 * 📊 **Post-Campaign Summary Window:** Detailed pop-up menu after broadcast completion showing total successful DMs, duration, and skipped/excluded players.
 * ⏱️ **Background Scheduler (Drip-Feed Mode):** Run broadcasts silently in the background while playing (e.g., automatically message 1 random player every X minutes).
@@ -88,15 +85,15 @@
 
 #### 🔮 Version 2.0 (Major Release)
 * 🛠️ **Custom Command Syntax:** Fully customizable command formats (supports `/tell`, `/w`, `/mail`, or custom server plugin commands).
-* 🎲 **Anti-Spam Message Variations:** Set multiple message templates that rotate randomly to bypass strict server filters.
+* 🎲 **Dual Delivery Modes (DM / CHAT):** Choose whether the bot sends messages via private direct messages (DM) or directly to the public server chat.
 * 🚪 **Auto-DM on Player Join:** Automatically detect and send a custom direct message to newly joined players.
 * 🔍 **Smart Player Filters:** Advanced targeting rules to skip AFK players, match specific name patterns, or target nearby players only.
 * 🔀 **Randomized Delay Intervals:** Set dynamic delay ranges (e.g., 2–5 seconds) to make broadcast timing look 100% human.
->>>>>>> d2e4da572e5735920e61d03a6d41804bc508cd16
 
 ---
 
 ### 🐛 Support & Bug Reports
 
 Found a bug, have a suggestion, or need help? Join our community!  
-💬 **Discord Support:** [https://code.mzcode.pl](https://code.mzcode.pl)
+💬 **Discord Support:** [https://mzcode.pl](https://mzcode.pl)
+🌐 **Wiki:** [https://wiki.mzcode.pl](https://wiki.mzcode.pl)
